@@ -5,7 +5,7 @@ import { userApi } from './userApi';
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
-        baseUrl: "http://localhost:4500/api/v1",
+        baseUrl: "https://ecomserver-g20m.onrender.com/api/v1",
         credentials: "include"
     }),
     endpoints: (builder) => ({

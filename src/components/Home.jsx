@@ -4,7 +4,7 @@ import { useGetProductsQuery } from '../Redux/Api/productsApi'
 import ProductItem from './Products/ProductItem';
 import Loader from './Layout/Loader';
 import toast from 'react-hot-toast';
-import CustomPagination from './Layout/customPagination';
+import CustomPagination from './Layout/CustomPagination';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Filters from './Layout/Filters';
 import { useSelector } from 'react-redux';
