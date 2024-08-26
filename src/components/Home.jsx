@@ -42,7 +42,7 @@ const Home = () => {
     if (isLoading) {
         return <Loader />
     }
-    console.log("here", data?.resPerPage)
+    // console.log("here", data?.resPerPage)
 
     return (
         <>
