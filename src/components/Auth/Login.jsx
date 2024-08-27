@@ -34,6 +34,7 @@ const Login = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email, password }),
+                withCredntials: true,
                 credentials: 'include', // Include credentials for cookies
             });
 
@@ -49,6 +50,7 @@ const Login = () => {
             // Fetch user data after successful login
             const userResponse = await fetch('https://ecomserver-g20m.onrender.com/api/v1/me', {
                 method: 'GET',
+                withCredntials: true,
                 credentials: 'include', // Include credentials for cookies
             });
 
