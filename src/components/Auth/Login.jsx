@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { userApi } from '../../Redux/Api/userApi'
 import { useGetMeQuery } from '../../Redux/Api/userApi';
+import { setUser, setIsAuthenticated, setLoading } from "../../Redux/features/userSlice"
 import Loader from '../Layout/Loader';
 // import {} from "../../Redux/features/userSlice"
 
@@ -36,19 +37,29 @@ const Login = () => {
                 credentials: 'include', // Include credentials for cookies
             });
 
-            // Adding a short delay to avoid premature error handling
-            // await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
-
             if (!response.ok) {
                 const errorData = await response.json();
                 toast.error(errorData.message || 'Login failed');
                 return; // Exit the function here to prevent showing the success message
             }
 
-            const data = await response.json();
+            const loginData = await response.json();
             toast.success('Login successful');
-            // fetchUserData(); // Trigger getMe endpoint to fetch user data
-            dispatch(userApi.endpoints.getMe.initiate());
+
+            // Fetch user data after successful login
+            const userResponse = await fetch('https://ecomserver-g20m.onrender.com/api/v1/me', {
+                method: 'GET',
+                credentials: 'include', // Include credentials for cookies
+            });
+
+            if (userResponse.ok) {
+                const userData = await userResponse.json();
+                dispatch(setUser(userData.user));
+                dispatch(setIsAuthenticated(true));
+            } else {
+                const errorData = await userResponse.json();
+                toast.error(errorData.message || 'Failed to fetch user data');
+            }
         } catch (error) {
             console.error('Network Error:', error);
             toast.error('Something went wrong. Please try again.');
@@ -56,6 +67,7 @@ const Login = () => {
             setIsLoading(false);
         }
     };
+
 
 
     if (isLoading) return <Loader />;
