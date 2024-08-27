@@ -1,36 +1,65 @@
-import React, { useEffect, useState } from 'react'
-import { useLoginMutation } from '../../Redux/Api/authApi'
-import toast from 'react-hot-toast'
-import { useSelector } from 'react-redux'
-import { Link, useNavigate } from 'react-router-dom'
-import Loader from '../Layout/Loader'
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
+import { userApi } from '../../Redux/Api/userApi'
+import { useGetMeQuery } from '../../Redux/Api/userApi';
+import Loader from '../Layout/Loader';
+// import {} from "../../Redux/features/userSlice"
 
 const Login = () => {
-    const nav = useNavigate();
-    const { isAuthenticated } = useSelector((state) => state.auth); // Use 'user' from state
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { isAuthenticated } = useSelector((state) => state.auth);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [login, { isLoading, error }] = useLoginMutation();
+    // const { refetch: fetchUserData } = useGetMeQuery(null, { skip: true });
 
     useEffect(() => {
-
         if (isAuthenticated) {
-            nav('/')
+            navigate('/');
         }
-        if (error) {
-            toast.error(error.data.message)
-        }
-    }, [error, isAuthenticated]);
-
-  
+    }, [isAuthenticated, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const loginData = { email, password };
-        await login(loginData);
-    }
-    if (isLoading) return <Loader />
+        setIsLoading(true);
+        try {
+            const response = await fetch('https://ecomserver-g20m.onrender.com/api/v1/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+                credentials: 'include', // Include credentials for cookies
+            });
+
+            // Adding a short delay to avoid premature error handling
+            // await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                toast.error(errorData.message || 'Login failed');
+                return; // Exit the function here to prevent showing the success message
+            }
+
+            const data = await response.json();
+            toast.success('Login successful');
+            // fetchUserData(); // Trigger getMe endpoint to fetch user data
+            dispatch(userApi.endpoints.getMe.initiate());
+        } catch (error) {
+            console.error('Network Error:', error);
+            toast.error('Something went wrong. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+
+    if (isLoading) return <Loader />;
+
     return (
         <div>
             <div className="row wrapper">
@@ -67,7 +96,7 @@ const Login = () => {
                         <Link to="/password/forgot" className="float-end mb-4">Forgot Password?</Link>
 
                         <button id="login_button" type="submit" className="btn w-100 py-2" disabled={isLoading}>
-                            {isLoading ? "Authenticating...." : "LOGIN"}
+                            {isLoading ? 'Authenticating....' : 'LOGIN'}
                         </button>
 
                         <div className="my-3">
@@ -77,7 +106,7 @@ const Login = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default Login;
